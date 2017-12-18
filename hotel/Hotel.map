@@ -1,0 +1,131 @@
+
+ HOTEL
+
+ Start     Length     Name                   Class
+ 0001:0000 00534H     DEMOMSG_$C00           CODE
+ 0002:0000 01225H     DEMO201_$C00           CODE
+ 0003:0000 006C4H     DEMO101_$C00           CODE
+ 0004:0000 021D2H     DEMO001_$C00           CODE
+ 0005:0000 00655H     HOTEL___$C00           CODE
+ 0006:0000 001CCH     F1HIEXE_TEXT           CODE
+ 0007:0000 00001H     C6INTW_TEXT            CODE
+ 0008:0000 0B24EH     ADIS____$C00           CODE
+ 0009:0000 0177DH     ADISKEY_$C00           CODE
+ 000A:0000 00863H     ADISINIT$C00           CODE
+ 000B:0000 0F88FH     EXTFH___$C00           CODE
+ 000C:0000 00971H     EXTERNL_$C00           CODE
+ 000D:0000 00A14H     _TEXT                  CODE
+ 000E:0000 0B7A8H     CSEG                   CODE
+ 000F:0000 015BAH     DOSXXX                 CODE
+ 0010:0000 00048H     GSEG                   CODE
+ 0011:0000 0001EH     LSEG                   CODE
+ 0012:0000 00330H     DEMOMSG_$D00           FAR_DATA
+ 0013:0000 01720H     DEMO201_$D00           FAR_DATA
+ 0014:0000 00915H     DEMO101_$D00           FAR_DATA
+ 0015:0000 007E6H     DEMO001_$D00           FAR_DATA
+ 0016:0000 00A83H     HOTEL___$D00           FAR_DATA
+ 0017:0000 0115CH     ADIS____$D00           FAR_DATA
+ 0018:0000 00923H     ADISKEY_$D00           FAR_DATA
+ 0019:0000 01D03H     ADISINIT$D00           FAR_DATA
+ 001A:0000 02DD0H     EXTFH___$D00           FAR_DATA
+ 001B:0000 00229H     EXTERNL_$D00           FAR_DATA
+ 001C:0000 00057H     DEMOMSG_$I             ICODE_DATA
+ 001D:0000 00087H     DEMO201_$I             ICODE_DATA
+ 001E:0000 00050H     DEMO101_$I             ICODE_DATA
+ 001F:0000 00079H     DEMO001_$I             ICODE_DATA
+ 0020:0000 008F3H     HOTEL___$I             ICODE_DATA
+ 0021:0000 003B1H     ADIS____$I             ICODE_DATA
+ 0022:0000 005BDH     ADISKEY_$I             ICODE_DATA
+ 0023:0000 00565H     ADISINIT$I             ICODE_DATA
+ 0024:0000 004E4H     EXTFH___$I             ICODE_DATA
+ 0025:0000 0006DH     EXTERNL_$I             ICODE_DATA
+ 0026:0000 00220H     LPTSEG                 LPT_DATA
+ 0026:0220 00020H     LPTSEGE                LPT_DATA
+ 0027:0000 00044H     DEMOMSG_$E             EXTCAL_DATA
+ 0028:0000 000D3H     DEMO201_$E             EXTCAL_DATA
+ 0029:0000 00045H     DEMO101_$E             EXTCAL_DATA
+ 002A:0000 00104H     DEMO001_$E             EXTCAL_DATA
+ 002B:0000 00046H     HOTEL___$E             EXTCAL_DATA
+ 002C:0000 00161H     ADIS____$E             EXTCAL_DATA
+ 002D:0000 00176H     ADISKEY_$E             EXTCAL_DATA
+ 002E:0000 0001FH     ADISINIT$E             EXTCAL_DATA
+ 002F:0000 002ABH     EXTFH___$E             EXTCAL_DATA
+ 0030:0000 00024H     EXTERNL_$E             EXTCAL_DATA
+ 0031:0000 000B0H     DEMOMSG_$H             CTRLBLK_DATA
+ 0032:0000 000B0H     DEMO201_$H             CTRLBLK_DATA
+ 0033:0000 000B0H     DEMO101_$H             CTRLBLK_DATA
+ 0034:0000 000B0H     DEMO001_$H             CTRLBLK_DATA
+ 0035:0000 000B0H     HOTEL___$H             CTRLBLK_DATA
+ 0036:0000 000B0H     ADIS____$H             CTRLBLK_DATA
+ 0037:0000 000B0H     ADISKEY_$H             CTRLBLK_DATA
+ 0038:0000 000B0H     ADISINIT$H             CTRLBLK_DATA
+ 0039:0000 000B0H     EXTFH___$H             CTRLBLK_DATA
+ 003A:0000 000B0H     EXTERNL_$H             CTRLBLK_DATA
+ 003B:0000 00002H     INTSEG                 DATA
+ 003C:0000 00038H     MULSEG                 DATA
+ 003D:0000 00200H     STOPRDATA              DATA
+ 003E:0000 000C0H     SCNDAT                 DATA
+ 003F:0000 00041H     TSEG                   DATA
+ 0040:0000 00512H     APIDAT                 DATA
+ 0041:0000 002D0H     CBLRUDAT               CBL_DATA
+ 0042:0000 00002H     SHRSEG                 SHARE
+ 0043:0000 0003DH     DSEG                   RTSDATA
+ 0044:0000 00000H     INITTERM               INITTERM
+ 0044:0000 00010H     INITTERMX              INITTERM
+ 0045:0000 00006H     DUMMY_SEG              
+ 0046:0000 00010H     NULL                   BEGDATA
+ 0046:0010 00149H     _DATA                  DATA
+ 0046:015A 0000EH     CDATA                  DATA
+ 0046:0168 00000H     XIFB                   DATA
+ 0046:0168 00000H     XIF                    DATA
+ 0046:0168 00000H     XIFE                   DATA
+ 0046:0168 00000H     XIB                    DATA
+ 0046:0168 00000H     XI                     DATA
+ 0046:0168 00000H     XIE                    DATA
+ 0046:0168 00000H     XPB                    DATA
+ 0046:0168 00000H     XP                     DATA
+ 0046:0168 00000H     XPE                    DATA
+ 0046:0168 00000H     XCB                    DATA
+ 0046:0168 00000H     XC                     DATA
+ 0046:0168 00000H     XCE                    DATA
+ 0046:0168 00000H     XCFB                   DATA
+ 0046:0168 00000H     XCFCRT                 DATA
+ 0046:0168 00000H     XCF                    DATA
+ 0046:0168 00000H     XCFE                   DATA
+ 0046:0168 00000H     XIFCB                  DATA
+ 0046:0168 00000H     XIFU                   DATA
+ 0046:0168 00000H     XIFL                   DATA
+ 0046:0168 00000H     XIFM                   DATA
+ 0046:0168 00000H     XIFCE                  DATA
+ 0046:0168 00000H     DBDATA                 DATA
+ 0046:0168 00000H     CONST                  CONST
+ 0046:0168 00008H     HDR                    MSG
+ 0046:0170 00146H     MSG                    MSG
+ 0046:02B6 00002H     PAD                    MSG
+ 0046:02B8 00001H     EPAD                   MSG
+ 0046:02BA 00000H     _BSS                   BSS
+ 0046:02BA 00000H     XOB                    BSS
+ 0046:02BA 00000H     XO                     BSS
+ 0046:02BA 00000H     XOE                    BSS
+ 0046:02BA 00000H     XOFB                   BSS
+ 0046:02BA 00000H     XOF                    BSS
+ 0046:02BA 00000H     XOFE                   BSS
+ 0046:02C0 00000H     c_common               BSS
+ 0046:02C0 07D00H     STACK                  STACK
+
+ Origin   Group
+ 000E:0   CGROUP
+ 0046:0   DGROUP
+ 0044:0   FGROUP
+ 0026:0   LPTGRP
+
+ Address   Export                  Alias
+
+ 0004:01F7 DEMO001                 DEMO001
+ 0003:00CA DEMO101                 DEMO101
+ 0002:0133 DEMO201                 DEMO201
+ 0001:00CA DEMOMSG                 DEMOMSG
+ 0005:00CA HOTEL                   HOTEL
+ 000D:06AC ___ExportedStub         ___ExportedStub
+
+Program entry point at 000D:001A

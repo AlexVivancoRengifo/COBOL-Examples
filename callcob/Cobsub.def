@@ -1,0 +1,14 @@
+;-----------------------------------------------------------------------------
+; Module-Definition File for COBSUB.DLL
+;-----------------------------------------------------------------------------
+
+; LIBRARY : The name of the dynamic link library is required.
+LIBRARY "COBSUB"
+
+; EXPORTS : PROGRAM-ID and ENTRY name are required.
+; (NOTICE)  In the DEF file creating function of PROGRAMMING-STAFF,
+;           the object name is specified for EXPORTS statement.
+;           Please change to a correct name.
+EXPORTS
+		COB1
+		COB2

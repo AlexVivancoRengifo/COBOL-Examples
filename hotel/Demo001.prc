@@ -1,0 +1,655 @@
+@POWER POWSHEET DEMO001 WORKING
+******************************************************************
+*		SHEET(ITEM)	===>	DEMO001
+*		EVENT		===>	WORKING
+*								1993.11.24 TOWA.SYSTEM.INC(NAKAI)
+******************************************************************
+*
+*	GLOBAL AREA
+*
+	01	GL-AREA		IS	GLOBAL.
+		03	WORK-AREA.
+			05	WK-STRNG			PIC	X(64).
+*
+*	EXTERNAL AREA
+*
+	01	EX-AREA	IS	GLOBAL	IS	EXTERNAL.
+		03	RSV-INFORMATION.
+			05	EX-RSVDATE		PIC	X(10).
+			05	EX-RSVNUM		PIC	X(09).
+			05	EX-RSVROOM		PIC	X(04).
+			05	EX-RSVTYPE		PIC	X(02).
+			05	EX-RSVNAME		PIC	X(20).
+			05	EX-RSVTEL		PIC	X(12).
+			05	EX-RSVSTAY		PIC	X(02).
+			05	EX-RSVTHIS		PIC	X(09).
+*
+		03	MESSAGE-AREA.
+			05	MSG-ERR			PIC	X(80).
+*
+		03	SWITCH-AREA.
+			05	RSV-SW			PIC	X(02).
+			05	SEL-SW			PIC	9(01).
+*
+		03	INDEX-AREA.
+			05	DEL-IDX			PIC	S9(04)	COMP-5.
+			05	TBL-IDX			PIC	S9(04)	COMP-5.
+*
+		03	ROOM-INFORMATION-LIST.
+ 		05	TYPE-INFORMATION	OCCURS	7	TIMES.
+ 			07	ROOM-TYPE-CODE	PIC	X(02).
+ 			07	ROOM-TYPE-NAME	PIC	X(16).
+ 			07	ROOM-TOTAL-NUM	PIC	9(04).
+ 			07	ROOM-RSV-NUM	PIC	9(04).
+*
+ 	03	RSV-DATE-LIST.
+ 		05	RSV-DATE	PIC	X(10)	OCCURS	100	TIMES.
+*
+		03	RSV-NUM-LIST.
+ 		05	RSV-NUM		PIC	X(09)	OCCURS	100	TIMES
+ 									INDEXED	BY	RSVNO-IDX.
+*
+ 	03	RSV-ROOM-LIST.
+ 		05	RSV-ROOM	PIC	X(04)	OCCURS	100	TIMES
+ 									INDEXED	BY	RSV-IDX.
+*
+		03	ROOM-LIST.
+ 		04	ROOM-TYPE-LIST.
+ 			05	GUEST-ROOM-TYPE-TABLE	OCCURS	6	TIMES.
+ 				07	GUEST-ROOM			OCCURS	20	TIMES.
+ 					09	GUEST-ROOM-NUM	PIC	X(04).
+ 					09	GUEST-ROOM-TYPE	PIC	X(02).
+ 		04	ROOM-NUM-LIST	REDEFINES	ROOM-TYPE-LIST.
+ 			05	ROOM-TABLE	OCCURS	120	INDEXED	BY	ROOM-IDX.
+ 				07	ROOM-NUM		PIC	X(04).
+ 				07	ROOM-TYPE		PIC	X(02).	
+*
+		03	NAME-LIST.
+ 		05	GUEST-NAME	PIC	X(20)	OCCURS	100	TIMES
+ 								INDEXED	BY	NAME-IDX.
+*
+ 	03	TEL-LIST.
+ 		05	TEL-NUM			PIC	X(12)	OCCURS	100	TIMES
+ 										INDEXED	BY	TEL-IDX.
+*
+		03	STAY-LIST.
+ 		05	STAY-NUM	PIC	X(02)	OCCURS	100	TIMES
+ 									INDEXED	BY	CNT-IDX.
+*
+@POWER POWSHEET DEMO001 OPENED
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+*
+ 01	WORK-AREA.
+ 	03	WK-TYPE				PIC	X(2).
+ 	03	WK-ROOMNO			PIC	X(4).
+ 	03	WK-ALL				PIC	9999.
+		03	WK-RSV				PIC	9999.
+		03	WK-COMP				PIC	S9(8)V9(8).
+		03	WK-RITU				PIC	ZZ9.9.
+		03	WK-RITU-D			PIC	X(06).
+		03	WK-YOYAKUDATE		PIC	X(08).
+		03	WK-YOYAKUNO			PIC	X(09).
+		03	WK-YOYAKURNO		PIC	X(04).
+		03	WK-ROOMTYPE			PIC	X(02).
+		03	WK-TBL-IDX			PIC	S9(04)	COMP-5.
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+*
+***	RSV-INFORMATION TABLE EDIT	***
+*
+		PERFORM	TBLEDIT	VARYING	TBL-IDX	FROM	1	BY	1
+				UNTIL	TBL-IDX		>	7.
+*
+***	RSV-LIST EDIT	***
+*
+		PERFORM	LSTEDIT	VARYING	TBL-IDX	FROM	1	BY	1
+			UNTIL	TBL-IDX	>	ROOM-RSV-NUM(7)	OR	TBL-IDX	>	100.
+*
+	MAIN-END.
+		EXIT	PROGRAM.
+*
+******************************************************************
+ TBLEDIT					SECTION.
+******************************************************************
+*
+		MOVE	ROOM-TOTAL-NUM(TBL-IDX)	TO	WK-ALL.
+		MOVE	ROOM-RSV-NUM(TBL-IDX)	TO	WK-RSV.
+		PERFORM	RITU-COMP.
+		CALL   SETCELLNUMERIC OF ROOMTBL  USING  WK-ALL	TBL-IDX	1.
+		CALL   SETCELLNUMERIC OF ROOMTBL  USING  WK-RSV	TBL-IDX	2.
+		CALL   SETCELLTEXT OF ROOMTBL  USING  WK-RITU-D	TBL-IDX	3.
+*
+	TBLEDIT-EX.
+		EXIT.
+*
+******************************************************************
+ RITU-COMP       	   SECTION.			*>	EDIT RESERVE %
+******************************************************************
+*
+		COMPUTE WK-COMP ROUNDED = (ROOM-RSV-NUM (TBL-IDX) /
+    			ROOM-TOTAL-NUM(TBL-IDX)) 		*	100
+    		ON	SIZE	ERROR	MOVE ZERO	TO	WK-COMP
+		END-COMPUTE.
+		COMPUTE	WK-RITU	ROUNDED	=	WK-COMP.
+		STRING	WK-RITU	"%"	DELIMITED	BY	SIZE	INTO	WK-RITU-D
+		END-STRING.
+*
+ RITU-END.
+ 	EXIT.		
+*
+******************************************************************
+	LSTEDIT					SECTION.
+******************************************************************
+*
+		PERFORM	TYPE-SRH.
+		STRING	" "
+				RSV-DATE (TBL-IDX)	
+				"     "
+				RSV-NUM (TBL-IDX)
+				"       "
+				RSV-ROOM (TBL-IDX)
+				"        "
+				WK-TYPE		
+				"   "
+				DELIMITED	BY SIZE
+				INTO	WK-STRNG
+		END-STRING.
+		CALL	ADDSTRING OF RSVLIST	USING	WK-STRNG.
+*
+	LSTEDIT-EX.
+		EXIT.
+*
+******************************************************************
+	TYPE-SRH				SECTION.		*>	INDEX ROOM TYPE
+******************************************************************
+*
+*
+		SET		ROOM-IDX	TO	1.
+		SEARCH	ROOM-TABLE
+			AT	END	MOVE	SPACE		TO	WK-TYPE
+			WHEN	RSV-ROOM (TBL-IDX)	=	ROOM-NUM (ROOM-IDX)
+				MOVE	ROOM-TYPE (ROOM-IDX)	TO	WK-TYPE
+		END-SEARCH.	
+	TYPE-END.
+		EXIT.
+*
+@POWER POWSHEET DEMO001 CLOSECHILD
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE	SECTION.
+	01	WORK-AREA.
+		03	WK-ALL					PIC	9999.
+		03	WK-RSV					PIC	9999.
+		03	WK-COMP					PIC	S9(8)V9(8).
+		03	WK-RITU					PIC	ZZ9.9.
+		03	WK-RITU-D				PIC	X(06).
+ 	03	WK-POSITION 			PIC	9(10)	VALUE	0.
+ 	03	SV-IDX	 				PIC	9(10)	VALUE	0.
+ 	03	WK-TYPE					PIC	X(02).
+ 	03	WK-IDX					PIC	S9(04)	COMP-5.
+*
+ PROCEDURE	DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+***	EDIT RESERVE INFOMATION	***
+*
+ 	PERFORM	TBLEDIT	VARYING	TBL-IDX	FROM	1	BY	1
+				UNTIL	TBL-IDX		>	7.
+*
+***	CHECK DATA	&	EDIT RESERVE LIST
+		IF	RSV-SW	=	"ON"
+			PERFORM	RSVLIST-REDISP
+			MOVE POW-OFF TO POW-VISIBLE OF RSVLIST
+			MOVE POW-ON TO POW-VISIBLE OF RSVLIST
+		END-IF.
+		MOVE	"OF"			TO	RSV-SW.
+*
+	MAIN-END.
+		EXIT	PROGRAM.
+*
+******************************************************************
+	TBLEDIT					SECTION.
+******************************************************************
+*
+		MOVE	ROOM-TOTAL-NUM(TBL-IDX)	TO	WK-ALL.
+     MOVE	ROOM-RSV-NUM(TBL-IDX)	TO	WK-RSV.
+		PERFORM	RITU-COMP.
+		CALL   SETCELLNUMERIC OF ROOMTBL  USING  WK-ALL	TBL-IDX	1.
+		CALL   SETCELLNUMERIC OF ROOMTBL  USING  WK-RSV	TBL-IDX	2.
+		CALL   SETCELLTEXT OF ROOMTBL  USING  WK-RITU-D	TBL-IDX	3.
+*
+	TBLEDIT-EX.
+		EXIT.
+*
+******************************************************************
+ RITU-COMP      		    SECTION.
+******************************************************************
+*
+		COMPUTE WK-COMP ROUNDED = (ROOM-RSV-NUM (TBL-IDX) /
+    			ROOM-TOTAL-NUM(TBL-IDX)) 		*	100
+    		ON	SIZE	ERROR	MOVE ZERO	TO	WK-COMP
+		END-COMPUTE.
+		COMPUTE	WK-RITU	ROUNDED	=	WK-COMP.
+		STRING	WK-RITU	"%"	DELIMITED	BY	SIZE
+				INTO	WK-RITU-D
+		END-STRING.
+	RITU-END.
+		EXIT.		
+*
+******************************************************************
+	RSVLIST-REDISP			SECTION.
+******************************************************************
+*
+***	DELETE RESERVE LIST	***
+*
+		COMPUTE	WK-IDX	=	ROOM-RSV-NUM(7)	-	1.
+		PERFORM	VARYING		DEL-IDX	FROM	WK-IDX	BY	-1
+			UNTIL	DEL-IDX	<	0
+			CALL	DELETESTRING OF RSVLIST	USING	DEL-IDX
+		END-PERFORM.
+*
+***	EDIT RESERVE LIST	***
+*
+		PERFORM	VARYING	TBL-IDX	FROM	1	BY	1
+			UNTIL		TBL-IDX	>	ROOM-RSV-NUM(7)	OR
+						TBL-IDX	>	100
+			PERFORM	RS-STRING-EDT
+			CALL	ADDSTRING OF RSVLIST	USING	WK-STRNG
+		END-PERFORM.
+		MOVE	ROOM-RSV-NUM(7)		TO	POW-SELECT OF RSVLIST.
+*
+	RSVLIST-REDISP-EX.
+		EXIT.
+*
+******************************************************************
+	RS-STRING-EDT			SECTION.
+******************************************************************
+*
+		PERFORM	TYPE-SRH
+		MOVE	SPACE			TO	WK-STRNG.
+		STRING	" "
+				RSV-DATE (TBL-IDX)	
+				"   "
+				RSV-NUM (TBL-IDX)
+				"    "
+				RSV-ROOM (TBL-IDX)
+				"   "
+				WK-TYPE		
+				"  "
+				DELIMITED	BY SIZE
+				INTO	WK-STRNG
+		END-STRING.		
+	RS-STRING-END.
+		EXIT.
+*
+******************************************************************
+	TYPE-SRH				SECTION.		*>	SEARCH ROOM TYPE
+******************************************************************
+*
+		SET		ROOM-IDX	TO	1.
+		SEARCH	ROOM-TABLE
+			AT	END	MOVE	SPACE		TO	WK-TYPE
+			WHEN	RSV-ROOM (TBL-IDX)	=	ROOM-NUM(ROOM-IDX)
+				MOVE	ROOM-TYPE(ROOM-IDX)	TO	WK-TYPE
+		END-SEARCH.
+*
+	TYPE-END.
+		EXIT.
+@POWER POWLIST RSVLIST DBLCLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE	SECTION.
+ 01	UN-DATA-AREA.
+ 	03	UN-DATA				PIC	X(20)	OCCURS	15.
+ PROCEDURE	DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+		PERFORM	SELUNSTRNG.
+*
+ 	PERFORM	NEXT-EDT.
+*
+ 	CALL	OPENSHEET	OF	DEMO001	USING	"DEMO101".
+ 	IF	RETURN-CODE	NOT	=	0
+ 		CONTINUE
+ 	END-IF.
+*
+ MAIN-EX.
+ 	EXIT	PROGRAM.
+*
+******************************************************************
+	SELUNSTRNG	SECTION.
+******************************************************************
+ 	MOVE	POW-SELSTRING OF RSVLIST	TO	WK-STRNG.
+ 	MOVE	SPACE			TO	UN-DATA-AREA.
+ 	UNSTRING	WK-STRNG
+ 		DELIMITED	BY	ALL SPACE
+ 		INTO	UN-DATA(1)	UN-DATA(2)	UN-DATA(3)	UN-DATA(4)
+ 				UN-DATA(5)	UN-DATA(6)	UN-DATA(7)	UN-DATA(8)
+ 				UN-DATA(9)	UN-DATA(10)	UN-DATA(11)	UN-DATA(12)
+ 				UN-DATA(13)	UN-DATA(14)	UN-DATA(15)
+ 	END-UNSTRING.
+ 	MOVE	UN-DATA(2)		TO	EX-RSVDATE.
+ 	MOVE	UN-DATA(3)		TO	EX-RSVNUM.
+ 	MOVE	UN-DATA(4)		TO	EX-RSVROOM.
+ 	MOVE	UN-DATA(5)		TO	EX-RSVTYPE.
+*
+	SELUNSTRNG-EX.
+		EXIT.
+*
+******************************************************************
+	NEXT-EDT				SECTION.		*>	EDIT EXTERNAL AREA
+******************************************************************
+*
+		SET RSVNO-IDX TO 1
+		PERFORM	VARYING	TBL-IDX	FROM	1	BY	1
+			UNTIL	TBL-IDX	>	100	OR
+					RSV-NUM(RSVNO-IDX)	=	SPACE
+			IF	RSV-NUM(TBL-IDX)	=	EX-RSVNUM
+				MOVE	GUEST-NAME(TBL-IDX)		TO	EX-RSVNAME
+				MOVE	TEL-NUM(TBL-IDX)	TO	EX-RSVTEL
+				MOVE	STAY-NUM(TBL-IDX)	TO	EX-RSVSTAY
+				EXIT	PERFORM
+			END-IF
+		END-PERFORM.
+		IF	TBL-IDX	>	100	OR	RSV-NUM(RSVNO-IDX)	=	SPACE
+			MOVE	SPACE		TO	EX-RSVNAME
+			MOVE	SPACE		TO	EX-RSVTEL
+			MOVE	SPACE		TO	EX-RSVSTAY	
+		END-IF.
+*
+	NEXT-END.
+		EXIT.
+
+@POWER POWPSBTN PUSHS1 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+***	EDIT SWITCH INFOMATION BY TYPE	***
+ 	MOVE	1				TO	SEL-SW.
+ 	MOVE	"S1"			TO	EX-RSVTYPE.
+*
+***	CLEAR RESERVE SWITCH	***
+ 	MOVE	"OF"			TO	RSV-SW.
+*
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+*
+*	MAKE RESERVE NUMBER	***
+ 	MOVE	EX-RSVDATE	TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)		TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHS2 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	2				TO	SEL-SW.
+ 	MOVE	"S2"			TO	EX-RSVTYPE.
+*
+ 	MOVE	"OF"			TO	RSV-SW.
+*
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+*
+ 	MOVE	EX-RSVDATE		TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)		TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHW CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	3				TO	SEL-SW.
+ 	MOVE	"W"				TO	EX-RSVTYPE.
+*
+ 	MOVE	"OF"			TO	RSV-SW.
+*
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+*
+ 	MOVE	EX-RSVDATE		TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)	TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHSU CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	6				TO	SEL-SW.
+ 	MOVE	"SU"			TO	EX-RSVTYPE.
+*
+ 	MOVE	"OF"			TO	RSV-SW.
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+ 	MOVE	EX-RSVDATE		TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)	TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHT1 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	4				TO	SEL-SW.
+ 	MOVE	"T1"			TO	EX-RSVTYPE.
+*
+ 	MOVE	"OF"			TO	RSV-SW.
+*
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+*
+ 	MOVE	EX-RSVDATE	TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)	TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHT2 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+	01	WORK-AREA.
+ 	03	WK-YOYAKUNO.
+ 		05	WK-Y-MM			PIC	9(02).
+ 		05	WK-Y-DD			PIC	9(02).
+ 		05	WK-P			PIC	X(01)	VALUE	"-".
+ 		05	WK-NUMBER		PIC	9(04)	VALUE	ZERO.
+ 	03	WK-YMD.
+ 		05	WK-YY			PIC	X(04).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-MM			PIC	X(02).
+ 		05	FILLER			PIC	X(01).
+ 		05	WK-DD			PIC	X(02).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	5				TO	SEL-SW.
+ 	MOVE	"T2"			TO	EX-RSVTYPE.
+*
+ 	MOVE	"OF"			TO	RSV-SW.
+*
+ 	MOVE	RSV-DATE(1)		TO	EX-RSVDATE.
+*
+ 	MOVE	EX-RSVDATE		TO	WK-YMD.
+ 	MOVE	WK-MM			TO	WK-Y-MM.
+ 	MOVE	WK-DD			TO	WK-Y-DD.
+ 	MOVE	ROOM-RSV-NUM(7)	TO	WK-NUMBER.
+ 	ADD		1				TO	WK-NUMBER.
+ 	MOVE	WK-YOYAKUNO		TO	EX-RSVTHIS.
+*
+		CALL	OPENSHEET OF DEMO001	USING	"DEMO201".
+		IF	RETURN-CODE	<	0
+			THEN
+				CONTINUE
+		END-IF.
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+		
+@POWER POWPSBTN PUSHEND CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ PROCEDURE   DIVISION.
+******************************************************************
+	MAIN					SECTION.
+******************************************************************
+*
+		CALL	CLOSESHEET OF DEMO001	USING	"DEMO001".
+*
+	MAIN-EX.
+		EXIT	PROGRAM.

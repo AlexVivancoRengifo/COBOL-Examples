@@ -1,0 +1,42 @@
+DEMOMSG      SHEETINFO "E:\\LPG\\Samples\\Hotel\\DEMOMSG.WIN"
+DEMO201      SHEETINFO "E:\\LPG\\Samples\\Hotel\\DEMO201.WIN"
+DEMO101      SHEETINFO "E:\\LPG\\Samples\\Hotel\\DEMO101.WIN"
+DEMO001      SHEETINFO "E:\\LPG\\Samples\\Hotel\\DEMO001.WIN"
+HOTEL        SHEETINFO "E:\\LPG\\Samples\\Hotel\\HOTEL.WIN"
+EXEINFO      EXEINFO
+BEGIN
+        0x44,
+        0x103,
+        0x8,
+        0x1d,
+        0xc,
+        0x13,
+        0x4f50,
+        0x4357,
+        0x424f,
+        0x4800,
+        0x746f,
+        0x6c65,
+        0x452e,
+        0x4558,
+        0x1f00,
+        0x5000,
+        0x2,
+        0xf701,
+        0x10e0,
+        0x100,
+        0x500,
+        0xe00,
+        0x100,
+        0xe00,
+        0x300,
+        0x1600,
+        0x4800,
+        0x544f,
+        0x4c45,
+        0x0,
+        0x8,
+        0x250,
+        0x100,
+        0xd4f6
+END

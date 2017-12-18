@@ -1,0 +1,13 @@
+[COBOLREG]
+@IconName=COB85EXE
+@ScrnSize=(80,24)
+@CnslWinSize=(80,24)
+@CnslBufLine=100
+@WinCloseMsg=ON
+@EnvSetWindow=UNUSE
+@AllFileExclusive=NO
+@CBR_PrintTextPosition=TYPE1
+@CBR_TextAlign=BOTTOM
+PRTFILE=PrintReg.PRT
+REGFILE=COBOL-Registrations.dat
+

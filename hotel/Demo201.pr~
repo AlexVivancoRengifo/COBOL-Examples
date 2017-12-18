@@ -1,0 +1,263 @@
+@POWER POWSHEET DEMO201 WORKING
+******************************************************************
+*		SHEET(ITEM)	===>	DEMO201
+*		EVENT		===>	WORKING
+*								1993.11.24 TOWA.SYSTEM.INC(NAKAI)
+******************************************************************
+*
+*01	GL-AREA		IS	GLOBAL.
+*
+	01	EX-AREA	IS	GLOBAL	IS	EXTERNAL.
+		03	RSV-INFORMATION.
+			05	EX-RSVDATE		PIC	X(10).
+			05	EX-RSVNUM		PIC	X(09).
+			05	EX-RSVROOM		PIC	X(04).
+			05	EX-RSVTYPE		PIC	X(02).
+			05	EX-RSVNAME		PIC	X(20).
+			05	EX-RSVTEL		PIC	X(12).
+			05	EX-RSVSTAY		PIC	X(02).
+			05	EX-RSVTHIS		PIC	X(09).
+*
+		03	MESSAGE-AREA.
+			05	MSG-ERR			PIC	X(80).
+*
+		03	SWITCH-AREA.
+			05	RSV-SW			PIC	X(02).
+			05	SEL-SW			PIC	9(01).
+*
+		03	INDEX-AREA.
+			05	DEL-IDX			PIC	S9(04)	COMP-5.
+			05	TBL-IDX			PIC	S9(04)	COMP-5.
+*
+		03	ROOM-INFORMATION-LIST.
+ 		05	TYPE-INFORMATION	OCCURS	7	TIMES.
+ 			07	ROOM-TYPE-CODE	PIC	X(02).
+ 			07	ROOM-TYPE-NAME	PIC	X(16).
+ 			07	ROOM-TOTAL-NUM	PIC	9(04).
+ 			07	ROOM-RSV-NUM	PIC	9(04).
+*
+ 	03	RSV-DATE-LIST.
+ 		05	RSV-DATE	PIC	X(10)	OCCURS	100	TIMES.
+*
+		03	RSV-NUM-LIST.
+ 		05	RSV-NUM		PIC	X(09)	OCCURS	100	TIMES
+ 									INDEXED	BY	RSVNO-IDX.
+*
+ 	03	RSV-ROOM-LIST.
+ 		05	RSV-ROOM	PIC	X(04)	OCCURS	100	TIMES
+ 									INDEXED	BY	RSV-IDX.
+*
+		03	ROOM-LIST.
+ 		04	ROOM-TYPE-LIST.
+ 			05	GUEST-ROOM-TYPE-TABLE	OCCURS	6	TIMES.
+ 				07	GUEST-ROOM			OCCURS	20	TIMES.
+ 					09	GUEST-ROOM-NUM	PIC	X(04).
+ 					09	GUEST-ROOM-TYPE	PIC	X(02).
+ 		04	ROOM-NUM-LIST	REDEFINES	ROOM-TYPE-LIST.
+ 			05	ROOM-TABLE	OCCURS	120	INDEXED	BY	ROOM-IDX.
+ 				07	ROOM-NUM		PIC	X(04).
+ 				07	ROOM-TYPE		PIC	X(02).	
+*
+		03	NAME-LIST.
+ 		05	GUEST-NAME	PIC	X(20)	OCCURS	100	TIMES
+ 								INDEXED	BY	NAME-IDX.
+*
+ 	03	TEL-LIST.
+ 		05	TEL-NUM			PIC	X(12)	OCCURS	100	TIMES
+ 										INDEXED	BY	TEL-IDX.
+*
+		03	STAY-LIST.
+ 		05	STAY-NUM	PIC	X(02)	OCCURS	100	TIMES
+ 									INDEXED	BY	CNT-IDX.
+*
+@POWER POWSHEET DEMO201 OPENED
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE			SECTION.
+*
+***	シート内ワークエリア	***
+*
+	01	WORK-AREA.
+ 	03	WK-TYPE				PIC	X(02).
+ 	03	WK-IDX1				PIC	S9(08)	COMP-5	VALUE	0.
+ 	03	WK-IDX2				PIC	S9(08)	COMP-5	VALUE	0.
+ 	03	WK-STRNG			PIC	X(64).
+*
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+  	MOVE	EX-RSVDATE	TO	POW-TEXT OF RSVDATE211.
+		MOVE	EX-RSVTYPE	TO	POW-TEXT OF ROOMTYP211. 
+		MOVE	EX-RSVTYPE	TO	WK-TYPE.
+		MOVE	EX-RSVNUM	TO	POW-TEXT OF RSVNO211.
+		MOVE	SEL-SW		TO	WK-IDX1.
+*
+***	EDIT VACANT INFORMATION	***
+		PERFORM	ROOM-SRH
+			VARYING	WK-IDX2	FROM	1	BY	1
+			UNTIL	WK-IDX2	>	20	OR
+					GUEST-ROOM-NUM(WK-IDX1 WK-IDX2)	=	SPACE.
+*
+	MAIN-END.
+		EXIT	PROGRAM.
+*
+******************************************************************
+	ROOM-SRH			SECTION.		*>	SEARCH VACANT 
+******************************************************************
+*
+		SET		RSV-IDX		TO	1.
+		SEARCH	RSV-ROOM
+			AT	END
+				PERFORM	COMB-EDT
+			WHEN	RSV-ROOM(RSV-IDX)	=
+					GUEST-ROOM-NUM(WK-IDX1 WK-IDX2)
+				CONTINUE
+		END-SEARCH.
+*
+	ROOM-EX.
+		EXIT.
+******************************************************************
+	COMB-EDT				SECTION.
+******************************************************************
+*
+		STRING	"  "
+				GUEST-ROOM-NUM(WK-IDX1 WK-IDX2)
+				"    "
+				GUEST-ROOM-TYPE(WK-IDX1 WK-IDX2)
+				" "
+				DELIMITED	BY SIZE
+				INTO	WK-STRNG
+		END-STRING.			
+		CALL	ADDSTRING OF NORSVLIST		USING	WK-STRNG.
+*
+	COMB-EX.
+		EXIT.		
+@POWER POWPSBTN CLOSE211 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+		PERFORM	INDTSAVE.
+*
+***	ERROR CHECK 	***	
+		IF	EX-RSVROOM		=	SPACE
+			MOVE	"Select room number."	TO	MSG-ERR
+			PERFORM	ERRMSG-SEC
+			GO	TO	MAIN-EX
+		END-IF.
+		IF	EX-RSVSTAY		=	SPACE	OR
+			EX-RSVNAME		=	SPACE	OR
+			EX-RSVTEL		=	SPACE
+			MOVE	"Input error"	TO	MSG-ERR
+			PERFORM	ERRMSG-SEC
+			GO	TO	MAIN-EX
+		END-IF.
+*
+		PERFORM	TBLEDIT.
+
+		MOVE	"ON"				TO	RSV-SW.
+		CALL	CLOSESHEET OF DEMO201	USING	"DEMO201".
+*
+	MAIN-EX.
+		EXIT	PROGRAM.
+*
+******************************************************************
+	INDTSAVE				SECTION.		*>	入力データ退避
+******************************************************************
+*
+		MOVE	POW-TEXT OF RSVNO211	TO	EX-RSVNUM.
+		MOVE	POW-TEXT OF ROOMNO211	TO	EX-RSVROOM.
+		MOVE	POW-TEXT OF RSVCNT211	TO	EX-RSVSTAY.
+		MOVE	POW-TEXT OF CSTNAME211	TO	EX-RSVNAME.
+		MOVE	POW-TEXT OF CSTTEL211	TO	EX-RSVTEL.
+*
+	INDTSAVE-EX.
+		EXIT.
+******************************************************************
+	ERRMSG-SEC				SECTION.
+******************************************************************
+*
+		CALL	OPENSHEET OF DEMO201	USING	"DEMOMSG".
+*
+	ERRMSG-EX.
+		EXIT.
+*
+******************************************************************
+	TBLEDIT					SECTION.
+******************************************************************
+*
+		EVALUATE	POW-TEXT OF ROOMTYP211
+			WHEN	"S1"
+				ADD		1				TO	ROOM-RSV-NUM(1)
+			WHEN	"S2"
+				ADD		1				TO	ROOM-RSV-NUM(2)
+			WHEN	"W"
+				ADD		1				TO	ROOM-RSV-NUM(3)
+			WHEN	"T1"
+				ADD		1				TO	ROOM-RSV-NUM(4)
+			WHEN	"T2"
+				ADD		1				TO	ROOM-RSV-NUM(5)
+			WHEN	"SU"
+				ADD		1				TO	ROOM-RSV-NUM(6)
+		END-EVALUATE.
+		ADD		1						TO	ROOM-RSV-NUM(7).
+		MOVE	ROOM-RSV-NUM(7)				TO	TBL-IDX.
+		MOVE	EX-RSVDATE				TO	RSV-DATE(TBL-IDX).	
+		MOVE	EX-RSVNUM				TO	RSV-NUM(TBL-IDX).
+		MOVE	EX-RSVROOM				TO	RSV-ROOM(TBL-IDX).
+		MOVE	POW-TEXT OF RSVCNT211	TO	STAY-NUM(TBL-IDX).
+		MOVE	POW-TEXT OF CSTNAME211	TO	GUEST-NAME(TBL-IDX).
+		MOVE	POW-TEXT OF CSTTEL211	TO	TEL-NUM(TBL-IDX).
+*
+	TBLEDIT-EX.
+		EXIT.
+@POWER POWPSBTN CANCEL211 CLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ PROCEDURE   DIVISION.
+******************************************************************
+ MAIN					SECTION.
+******************************************************************
+*
+ 	MOVE	"OF"		TO	RSV-SW.
+		CALL	CLOSESHEET OF DEMO201	USING	"DEMO201".
+*
+	MAIN-EX.
+		EXIT	PROGRAM.		
+@POWER POWLIST NORSVLIST DBLCLICK
+ ENVIRONMENT DIVISION.
+ DATA        DIVISION.
+ WORKING-STORAGE				SECTION.
+ 01	WK-STRNG		PIC	X(64).
+ 01	UN-DATA-AREA.
+ 	03	UN-DATA				PIC	X(20)	OCCURS	5.
+*
+ PROCEDURE	DIVISION.
+******************************************************************
+ MAIN				SECTION.
+******************************************************************
+*
+ 	MOVE	POW-SELSTRING OF NORSVLIST	TO	WK-STRNG.
+ 	UNSTRING	WK-STRNG
+ 		DELIMITED	BY	ALL SPACE
+ 		INTO	UN-DATA(1)	UN-DATA(2)
+ 				UN-DATA(3)	UN-DATA(4)	UN-DATA(5)
+ 	END-UNSTRING.
+ 	MOVE	UN-DATA(2)			TO	EX-RSVROOM.
+ 	MOVE	UN-DATA(3)			TO	EX-RSVTYPE.
+*
+ 	MOVE	EX-RSVDATE		TO	POW-TEXT OF RSVDATE211.
+		MOVE	EX-RSVTHIS		TO	POW-TEXT OF RSVNO211.
+		MOVE	EX-RSVROOM		TO	POW-TEXT OF ROOMNO211.
+		MOVE	EX-RSVTYPE		TO	POW-TEXT OF ROOMTYP211.
+*
+		MOVE	SPACE	TO	POW-TEXT OF CSTNAME211.
+		MOVE	SPACE	TO	POW-TEXT OF CSTTEL211.
+		MOVE	SPACE	TO	POW-TEXT OF RSVCNT211.
+	MAIN-EX.
+ 	EXIT	PROGRAM.
